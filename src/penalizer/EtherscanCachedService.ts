@@ -1,29 +1,48 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { BlockExplorerInterface, EtherscanResponse, TransactionData } from './BlockExplorerInterface'
-import { Address, isSameAddress, LoggerInterface } from '@opengsn/common'
+import {
+  BlockExplorerInterface,
+  EtherscanResponse,
+  TransactionData,
+} from './BlockExplorerInterface';
+import { Address, isSameAddress, LoggerInterface } from '@opengsn/common';
 
-import { TransactionDataCache } from './TransactionDataCache'
+import { TransactionDataCache } from './TransactionDataCache';
 
 export class EtherscanCachedService implements BlockExplorerInterface {
-  constructor (
+  constructor(
     readonly url: string,
     readonly etherscanApiKey: string,
     readonly logger: LoggerInterface,
-    readonly transactionDataCache: TransactionDataCache) {}
+    readonly transactionDataCache: TransactionDataCache
+  ) {}
 
-  async getTransactionByNonce (address: Address, nonce: number): Promise<TransactionData | undefined> {
-    const { transaction, lastPageQueried } = await this.queryCachedTransactions(address, nonce)
+  async getTransactionByNonce(
+    address: Address,
+    nonce: number
+  ): Promise<TransactionData | undefined> {
+    const { transaction, lastPageQueried } = await this.queryCachedTransactions(
+      address,
+      nonce
+    );
     if (transaction != null) {
-      return transaction
+      return transaction;
     }
-    return await this.searchTransactionEtherscan(address, nonce, lastPageQueried)
+    return await this.searchTransactionEtherscan(
+      address,
+      nonce,
+      lastPageQueried
+    );
   }
 
-  async searchTransactionEtherscan (address: string, nonce: number, lastPageQueried: number): Promise<TransactionData | undefined> {
-    const pageSize = 10
-    let page = lastPageQueried + 1
-    let response: AxiosResponse<EtherscanResponse>
+  async searchTransactionEtherscan(
+    address: string,
+    nonce: number,
+    lastPageQueried: number
+  ): Promise<TransactionData | undefined> {
+    const pageSize = 10;
+    let page = lastPageQueried + 1;
+    let response: AxiosResponse<EtherscanResponse>;
     do {
       const params: AxiosRequestConfig = {
         params: {
@@ -35,33 +54,52 @@ export class EtherscanCachedService implements BlockExplorerInterface {
           module: 'account',
           sort: 'asc',
           startblock: 0,
-          endblock: 99999999
-        }
-      }
-      response = await axios.get(this.url, params)
+          endblock: 99999999,
+        },
+      };
+      response = await axios.get(this.url, params);
       if (response.data.result == null || response.data.result.filter == null) {
-        throw new Error(`Failed to query ${this.url}: returned ${response.data.status} ${response.data.message}`)
+        throw new Error(
+          `Failed to query ${this.url}: returned ${response.data.status} ${response.data.message}`
+        );
       } else if (response.data.status !== '0') {
-        this.logger.warn(`Request to ${this.url} returned with ${response.data.status} ${response.data.message}`)
+        this.logger.warn(
+          `Request to ${this.url} returned with ${response.data.status} ${response.data.message}`
+        );
       }
-      const outgoingTransactions = response.data.result.filter((it) => isSameAddress(it.from, address))
-      await this.cacheResponse(outgoingTransactions, address, page)
-      const transaction = outgoingTransactions.find((it) => parseInt(it.nonce) === nonce)
+      const outgoingTransactions = response.data.result.filter((it) =>
+        isSameAddress(it.from, address)
+      );
+      await this.cacheResponse(outgoingTransactions, address, page);
+      const transaction = outgoingTransactions.find(
+        (it) => parseInt(it.nonce) === nonce
+      );
       if (transaction != null) {
-        return transaction
+        return transaction;
       }
-      page++
-    } while (response.data.result.length >= pageSize)
-    return undefined
+      page++;
+    } while (response.data.result.length >= pageSize);
+    return undefined;
   }
 
-  async queryCachedTransactions (address: Address, nonce: number): Promise<{ transaction?: TransactionData, lastPageQueried: number }> {
-    const transaction = await this.transactionDataCache.getTransactionByNonce(address, nonce)
-    const lastPageQueried = await this.transactionDataCache.getLastPageQueried(address)
-    return { transaction, lastPageQueried }
+  async queryCachedTransactions(
+    address: Address,
+    nonce: number
+  ): Promise<{ transaction?: TransactionData; lastPageQueried: number }> {
+    const transaction = await this.transactionDataCache.getTransactionByNonce(
+      address,
+      nonce
+    );
+    const lastPageQueried =
+      await this.transactionDataCache.getLastPageQueried(address);
+    return { transaction, lastPageQueried };
   }
 
-  async cacheResponse (transactions: TransactionData[], sender: Address, page: number): Promise<void> {
-    await this.transactionDataCache.putTransactions(transactions, sender, page)
+  async cacheResponse(
+    transactions: TransactionData[],
+    sender: Address,
+    page: number
+  ): Promise<void> {
+    await this.transactionDataCache.putTransactions(transactions, sender, page);
   }
 }
