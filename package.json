@@ -12,7 +12,8 @@
     "watch-tsc": "tsc -w --preserveWatchOutput",
     "lint": "eslint -f unix .",
     "lint-fix": "yarn lint --fix",
-    "rm-dist": "rm -rf tsconfig.tsbuildinfo dist"
+    "rm-dist": "rm -rf tsconfig.tsbuildinfo dist",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "publishConfig": {
     "access": "public"
@@ -67,6 +68,7 @@
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-standard": "4.0.1",
     "ethereumjs-abi": "^0.6.8",
+    "prettier": "^3.2.4",
     "run-with-hardhat-node": "^0.4.3",
     "solpp": "^0.11.5",
     "truffle": "5.1.26",
