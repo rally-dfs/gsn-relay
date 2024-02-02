@@ -1,0 +1,34 @@
+# fly.toml app configuration file generated for gsn-relay-mumbai on 2024-02-01T15:41:54-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'gsn-relay-mumbai'
+primary_region = 'sea'
+
+[env]
+  RELAYER_URL = https://gsn-relay-polygon-mumbai.rly.network/
+  RELAYER_HUB_ADDRESS = 0x3232f21A6E08312654270c78A773f00dd61d60f5
+  RELAYER_MANAGER_STAKE_TOKEN_ADDRESS = 0x823e81ff03470d3d705dc5a1e5d0ae78bbc8b139
+  RELAYER_OWNER_ADDRESS = 0x0c5251D14C2156C8586EC39e37cd880b28720cb2
+  RELAYER_GAS_PRICE_FACTOR = 1 
+  RELAYER_WORKER_MIN_BALANCE = 1000000000000000000
+  RELAYER_WORKER_TARGET_BALANCE = 2000000000000000000
+  RELAYER_MANAGER_MIN_BALANCE = 1000000000000000000
+  RELAYER_MANAGER_TARGET_BALANCE = 2000000000000000000
+  RELAYER_RUN_PAYMASTER_REPUTATIONS = false
+
+[build]
+
+[http_service]
+  internal_port = 8090
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024
