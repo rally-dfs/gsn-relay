@@ -35,6 +35,7 @@ export class HttpServer {
     this.app.use(bodyParser.json());
 
     if (this.relayService != null) {
+      this.app.get('/health', this.healthCheckHandler.bind(this));
       // used to work before workspaces, needs research
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.app.post('/getaddr', this.pingHandler.bind(this));
@@ -76,6 +77,17 @@ export class HttpServer {
     this.logger.info('Stopping relay worker...');
     this.relayService?.stop();
     this.penalizerService?.stop();
+  }
+
+  async healthCheckHandler(req: Request, res: Response): Promise<void> {
+    const metaData = await this.relayService!.pingHandler();
+
+    if (!metaData.ready) {
+      res.status(500).send('NOT ready');
+      return;
+    }
+
+    res.send('Ready');
   }
 
   async pingHandler(req: Request, res: Response): Promise<void> {
