@@ -20,7 +20,5 @@ RUN yarn install --no-cache --frozen-lockfile && \
   cp /app/dist/webpack-relayserver.js /app/relayserver.js && \
   rm -rf node_modules dist /usr/local/share/.cache/yarn
 
-RUN cp /app/dist/webpack-relayserver.js /app/relayserver.js
-
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD node --no-deprecation /app/relayserver.js
