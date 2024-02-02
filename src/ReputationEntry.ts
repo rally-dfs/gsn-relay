@@ -1,14 +1,14 @@
-import { Address } from '@opengsn/common'
+import { Address } from '@opengsn/common';
 
 export interface ReputationChange {
-  blockNumber: number
-  change: number
+  blockNumber: number;
+  change: number;
 }
 
 export interface ReputationEntry {
-  paymaster: Address
-  reputation: number
-  lastAcceptedRelayRequestTs: number
-  abuseStartedBlock: number
-  changes: ReputationChange[]
+  paymaster: Address;
+  reputation: number;
+  lastAcceptedRelayRequestTs: number;
+  abuseStartedBlock: number;
+  changes: ReputationChange[];
 }
