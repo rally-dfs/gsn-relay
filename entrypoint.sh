@@ -12,7 +12,7 @@ JSON_STRING="{
   \"workerTargetBalance\": \"$RELAYER_WORKER_TARGET_BALANCE\",
   \"managerMinBalance\": \"$RELAYER_MANAGER_MIN_BALANCE\",
   \"managerTargetBalance\": \"$RELAYER_MANAGER_TARGET_BALANCE\",
-  \"runPaymasterReputations\": $RELAYER_RUN_PAYMASTER_REPUTATIONS
+  \"runPaymasterReputations\": $RELAYER_RUN_PAYMASTER_REPUTATIONS,
   \"maxMaxFeePerGas\": $RELAYER_MAX_MAX_FEE_PER_GAS
 }"
 
