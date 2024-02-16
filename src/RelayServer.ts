@@ -929,6 +929,9 @@ latestBlock timestamp   | ${latestBlock.timestamp}
     if (this.shouldRefreshBalances) {
       await this.registrationManager.refreshBalance();
       this.workerBalanceRequired.currentValue = await this.getWorkerBalance(0);
+      
+      this.logger.debug(`current worker balance: ${this.workerBalanceRequired.currentValue.toString()}`);
+      this.logger.debug(`current manager balance: ${this.registrationManager.balanceRequired.currentValue.toString()}`);
 
       isManagerBalanceReady =
         this.registrationManager.balanceRequired.currentValue.gte(
