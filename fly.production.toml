@@ -1,0 +1,43 @@
+# fly.toml app configuration file generated for gsn-relay-mumbai on 2024-02-01T15:41:54-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'gsn-relay-production'
+primary_region = 'sea'
+
+[env]
+  config = '/app/config/gsn-relay-config.json'
+  RELAYER_URL = 'https://gsn-relay-polygon.rly.network/'
+  RELAYER_HUB_ADDRESS = '0xfCEE9036EDc85cD5c12A9De6b267c4672Eb4bA1B'
+  RELAYER_MANAGER_STAKE_TOKEN_ADDRESS = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+  RELAYER_OWNER_ADDRESS = '0x6477d8d2776970b1570D4c5DE1F7feCFd182E69a'
+  RELAYER_GAS_PRICE_FACTOR = 1
+  RELAYER_WORKER_MIN_BALANCE = "20000000000000000000"
+  RELAYER_WORKER_TARGET_BALANCE = "30000000000000000000"
+  RELAYER_MANAGER_MIN_BALANCE = "20000000000000000000"
+  RELAYER_MANAGER_TARGET_BALANCE = "30000000000000000000"
+  RELAYER_RUN_PAYMASTER_REPUTATIONS = false
+  RELAYER_MAX_MAX_FEE_PER_GAS = "10000000000000"
+
+[build]
+
+[http_service]
+  internal_port = 8090
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024
+
+[[http_service.checks]]
+  grace_period = "5s"
+  interval = "3s"
+  method = "GET"
+  timeout = "1s"
+  path = "/health"
