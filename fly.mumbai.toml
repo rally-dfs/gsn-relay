@@ -41,3 +41,6 @@ primary_region = 'sea'
   method = "GET"
   timeout = "1s"
   path = "/health"
+
+[deploy]
+  strategy = "bluegreen"
