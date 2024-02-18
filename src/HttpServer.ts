@@ -13,6 +13,7 @@ import {
   RelayTransactionRequestShape,
 } from '@opengsn/common';
 import { RelayServer } from './RelayServer';
+import { toBN } from 'web3-utils';
 
 export interface ParamsDictionary {
   [key: string]: string;
@@ -37,6 +38,7 @@ export class HttpServer {
     if (this.relayService != null) {
       this.app.get('/health', this.healthCheckHandler.bind(this));
       this.app.get('/balances', this.balanceHandler.bind(this));
+      this.app.get('/balancehealth', this.balanceHealthHandler.bind(this));
       // used to work before workspaces, needs research
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.app.post('/getaddr', this.pingHandler.bind(this));
@@ -107,6 +109,27 @@ export class HttpServer {
       workerBalance: this.relayService.workerBalanceRequired.currentValue.toString(),
       managerBalance: this.relayService.registrationManager.balanceRequired.currentValue.toString(),
     });
+  }
+
+  async balanceHealthHandler(req: Request, res: Response): Promise<void> {
+    if (this.relayService == null) {
+      throw new Error('RelayServer not initialized');
+    }
+
+    if (
+      this.relayService.registrationManager.balanceRequired.currentValue == null
+    ) {
+      throw new Error('RelayServer balances not initialized');
+    }
+
+    if (this.relayService.registrationManager.balanceRequired.currentValue.lt(
+      toBN(this.relayService.config.managerTargetBalance.toString())
+    )) {
+      res.status(500).send('Manager balance is below target balance.');
+      return;
+    }
+
+    res.send('Manager balance is above target balance.');
   }
 
   async pingHandler(req: Request, res: Response): Promise<void> {
