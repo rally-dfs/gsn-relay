@@ -36,6 +36,7 @@ export class HttpServer {
 
     if (this.relayService != null) {
       this.app.get('/health', this.healthCheckHandler.bind(this));
+      this.app.get('/balances', this.balanceHandler.bind(this));
       // used to work before workspaces, needs research
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.app.post('/getaddr', this.pingHandler.bind(this));
@@ -88,6 +89,24 @@ export class HttpServer {
     }
 
     res.send('Ready');
+  }
+
+  async balanceHandler(req: Request, res: Response): Promise<void> {
+    if (this.relayService == null) {
+      throw new Error('RelayServer not initialized');
+    }
+
+    if (
+      this.relayService.workerBalanceRequired.currentValue == null ||
+      this.relayService.registrationManager.balanceRequired.currentValue == null
+    ) {
+      throw new Error('RelayServer balances not initialized');
+    }
+
+    res.send({
+      workerBalance: this.relayService.workerBalanceRequired.currentValue.toString(),
+      managerBalance: this.relayService.registrationManager.balanceRequired.currentValue.toString(),
+    });
   }
 
   async pingHandler(req: Request, res: Response): Promise<void> {
