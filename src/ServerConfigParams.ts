@@ -179,6 +179,16 @@ export interface ServerConfigParams {
   etherscanApiKey: string;
 
   /**
+   * The address of the paymaster for use with health checks.
+   */
+  paymasterAddress: string;
+
+  /**
+   * The minimum balance of the paymaster. If the balance gets lower than the balance health check will fail.
+   */
+  paymasterMinBalance: string;
+
+  /**
    * The minimum balance of the worker. If the balance gets lower than that Relay Manager will top it up.
    */
   workerMinBalance: number;
@@ -342,6 +352,8 @@ export const serverDefaultConfiguration: ServerConfigParams = {
   gasPriceFactor: 1,
   gasPriceOracleUrl: '',
   gasPriceOraclePath: '',
+  paymasterAddress: '',
+  paymasterMinBalance: '',
   workerMinBalance: 0.1e18,
   workerTargetBalance: 0.3e18,
   managerMinBalance: 0.1e18, // 0.1 eth
@@ -404,6 +416,9 @@ const ConfigParamsTypes = {
   userId: 'string',
   maxAcceptanceBudget: 'number',
   alertedDelaySeconds: 'number',
+
+  paymasterAddress: 'string',
+  paymasterMinBalance: 'string',
 
   workerMinBalance: 'number',
   workerTargetBalance: 'number',

@@ -6,6 +6,8 @@ JSON_STRING="{
   \"relayHubAddress\": \"$RELAYER_HUB_ADDRESS\",
   \"managerStakeTokenAddress\": \"$RELAYER_MANAGER_STAKE_TOKEN_ADDRESS\",
   \"ownerAddress\": \"$RELAYER_OWNER_ADDRESS\",
+  \"paymasterAddress\": \"$RELAYER_PAYMASTER_ADDRESS\",
+  \"paymasterMinBalance\": \"$RELAYER_PAYMASTER_MIN_BALANCE\",
   \"gasPriceFactor\": $RELAYER_GAS_PRICE_FACTOR,
   \"ethereumNodeUrl\": \"$RELAYER_NODE_URL\",
   \"workerMinBalance\": \"$RELAYER_WORKER_MIN_BALANCE\",

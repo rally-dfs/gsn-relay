@@ -105,10 +105,13 @@ export class HttpServer {
       throw new Error('RelayServer balances not initialized');
     }
 
-    res.send({
+    const output = {
       workerBalance: this.relayService.workerBalanceRequired.currentValue.toString(),
       managerBalance: this.relayService.registrationManager.balanceRequired.currentValue.toString(),
-    });
+      paymasterBalance: (await this.relayService.relayHubContract.balanceOf(this.relayService.config.paymasterAddress)).toString(),
+    };
+
+    res.send(output);
   }
 
   async balanceHealthHandler(req: Request, res: Response): Promise<void> {
@@ -116,20 +119,14 @@ export class HttpServer {
       throw new Error('RelayServer not initialized');
     }
 
-    if (
-      this.relayService.registrationManager.balanceRequired.currentValue == null
-    ) {
-      throw new Error('RelayServer balances not initialized');
-    }
+    const paymasterBalance = await this.relayService.relayHubContract.balanceOf(this.relayService.config.paymasterAddress);
 
-    if (this.relayService.registrationManager.balanceRequired.currentValue.lt(
-      toBN(this.relayService.config.managerTargetBalance.toString())
-    )) {
+    if (paymasterBalance.lt(toBN(this.relayService.config.paymasterMinBalance))) {
       res.status(500).send('Manager balance is below target balance.');
       return;
     }
 
-    res.send('Manager balance is above target balance.');
+    res.send('Paymaster balance is above target balance.');
   }
 
   async pingHandler(req: Request, res: Response): Promise<void> {
