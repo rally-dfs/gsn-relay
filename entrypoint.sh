@@ -15,7 +15,7 @@ JSON_STRING="{
   \"managerMinBalance\": \"$RELAYER_MANAGER_MIN_BALANCE\",
   \"managerTargetBalance\": \"$RELAYER_MANAGER_TARGET_BALANCE\",
   \"runPaymasterReputations\": $RELAYER_RUN_PAYMASTER_REPUTATIONS,
-  \"maxMaxFeePerGas\": $RELAYER_MAX_MAX_FEE_PER_GAS
+  \"maxMaxFeePerGas\": \"$RELAYER_MAX_MAX_FEE_PER_GAS\"
 }"
 
 mkdir -p /app/data/workers/${RELAYER_HUB_ADDRESS}
