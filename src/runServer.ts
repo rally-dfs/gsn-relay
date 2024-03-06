@@ -2,6 +2,7 @@
 import fs from 'fs';
 import Web3 from 'web3';
 import chalk from 'chalk';
+import winston from 'winston';
 import { JsonRpcPayload, JsonRpcResponse } from 'web3-core-helpers';
 import { HttpServer } from './HttpServer';
 import { RelayServer } from './RelayServer';
@@ -168,11 +169,13 @@ async function run(): Promise<void> {
     }
   }
   console.log('Creating server logger...\n');
-  const logger = createServerLogger(
-    config.logLevel,
-    config.loggerUrl,
-    config.loggerUserId
-  );
+  const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+      new winston.transports.Console(),
+    ]
+  });
   console.log('Creating managers...\n');
   const managerKeyManager = new KeyManager(1, `${workdir}/manager`);
   const workersKeyManager = new KeyManager(
