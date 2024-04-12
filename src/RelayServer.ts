@@ -361,6 +361,46 @@ export class RelayServer extends EventEmitter {
     );
   }
 
+  async calculatePaymasterGasAndDataLimits(
+    relayTransactionRequest: RelayTransactionRequest,
+    gasAndDataLimits: PaymasterGasAndDataLimits | undefined,
+    gasReserve: number,
+    gasFactor: number
+  ): Promise<RelayRequestLimits> {
+    if (gasAndDataLimits == null) {
+      gasAndDataLimits =
+        await this.contractInteractor.getGasAndDataLimitsFromPaymaster(
+          relayTransactionRequest.relayRequest.relayData.paymaster
+        );
+    }
+
+    const {
+      paymasterAcceptanceBudget,
+      effectiveAcceptanceBudget,
+      transactionCalldataGasUsed,
+      maxPossibleGas,
+    } = this.contractInteractor.calculateRequestLimits(
+      relayTransactionRequest,
+      gasAndDataLimits
+    );
+
+    const maxPossibleGasFactorReserve =
+      gasReserve + Math.floor(maxPossibleGas * gasFactor);
+    const maxPossibleCharge =
+      await this.contractInteractor.relayHubInstance.calculateCharge(
+        maxPossibleGasFactorReserve,
+        relayTransactionRequest.relayRequest.relayData
+      );
+
+    return {
+      paymasterAcceptanceBudget,
+      effectiveAcceptanceBudget,
+      transactionCalldataGasUsed,
+      maxPossibleCharge,
+      maxPossibleGas: maxPossibleGasFactorReserve,
+    };
+  }
+
   async calculateAndValidatePaymasterGasAndDataLimits(
     relayTransactionRequest: RelayTransactionRequest
   ): Promise<number> {
@@ -368,13 +408,12 @@ export class RelayServer extends EventEmitter {
       this.trustedPaymastersGasAndDataLimits.get(
         relayTransactionRequest.relayRequest.relayData.paymaster
       );
-    const relayRequestLimits =
-      await this.contractInteractor.calculatePaymasterGasAndDataLimits(
-        relayTransactionRequest,
-        trustedPaymasterGasAndDataLimits,
-        GAS_RESERVE,
-        GAS_FACTOR
-      );
+    const relayRequestLimits = await this.calculatePaymasterGasAndDataLimits(
+      relayTransactionRequest,
+      trustedPaymasterGasAndDataLimits,
+      GAS_RESERVE,
+      GAS_FACTOR
+    );
     await this.validatePaymasterGasAndDataLimits(
       relayTransactionRequest,
       relayRequestLimits
@@ -524,9 +563,7 @@ returnValue        | ${viewRelayCallRet.returnValue}
     }
   }
 
-  async createRelayTransaction(
-    req: RelayTransactionRequest
-  ): Promise<{
+  async createRelayTransaction(req: RelayTransactionRequest): Promise<{
     signedTx: PrefixedHexString;
     nonceGapFilled: ObjectMap<PrefixedHexString>;
   }> {
@@ -929,7 +966,7 @@ latestBlock timestamp   | ${latestBlock.timestamp}
     if (this.shouldRefreshBalances) {
       await this.registrationManager.refreshBalance();
       this.workerBalanceRequired.currentValue = await this.getWorkerBalance(0);
-      
+
       isManagerBalanceReady =
         this.registrationManager.balanceRequired.currentValue.gte(
           toBN(this.config.managerMinBalance.toString()).divn(
