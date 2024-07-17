@@ -22,6 +22,7 @@ export interface ParamsDictionary {
 export class HttpServer {
   app: Express;
   private serverInstance?: Server;
+  booted: boolean = false;
 
   constructor(
     private readonly port: number,
@@ -83,11 +84,15 @@ export class HttpServer {
   }
 
   async healthCheckHandler(req: Request, res: Response): Promise<void> {
-    const metaData = await this.relayService!.pingHandler();
+    if (!this.booted) {
+      const metaData = await this.relayService!.pingHandler();
 
-    if (!metaData.ready) {
-      res.status(500).send('NOT ready');
-      return;
+      if (metaData.ready) {
+        this.booted = true;
+      } else {
+        res.status(500).send('NOT ready');
+        return;
+      }
     }
 
     res.send('Ready');
