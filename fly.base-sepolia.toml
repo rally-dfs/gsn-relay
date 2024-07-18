@@ -1,0 +1,48 @@
+# fly.toml app configuration file generated for gsn-relay-mumbai on 2024-02-01T15:41:54-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'gsn-relay-base-sepolia'
+primary_region = 'sea'
+
+[env]
+config = '/app/config/gsn-relay-config.json'
+RELAYER_URL = 'https://gsn-relay-base-sepolia.rly.network/'                        # **
+RELAYER_HUB_ADDRESS = '0xb570b57b821670707fF4E38Ea53fcb67192278F8'
+RELAYER_MANAGER_STAKE_TOKEN_ADDRESS = '0xf1BC75Bea77a43e0a2891C694a1BA760a87C30af'
+RELAYER_OWNER_ADDRESS = '0x7973eb3eb4e9b1801ef454f238cd0790ba70466c'
+RELAYER_PAYMASTER_ADDRESS = '0x0e20E8A953a1e7D5FD4B24F12aC021b6345F364F'
+RELAYER_PAYMASTER_MIN_BALANCE = '1000000000000000000'
+RELAYER_GAS_PRICE_FACTOR = 1
+RELAYER_WORKER_MIN_BALANCE = '1000000000000000000'
+RELAYER_WORKER_TARGET_BALANCE = '2000000000000000000'
+RELAYER_MANAGER_MIN_BALANCE = '1000000000000000000'
+RELAYER_MANAGER_TARGET_BALANCE = '2000000000000000000'
+RELAYER_RUN_PAYMASTER_REPUTATIONS = false
+RELAYER_MAX_MAX_FEE_PER_GAS = '1500000000000'
+
+[build]
+
+[http_service]
+internal_port = 8090
+force_https = true
+auto_stop_machines = true
+auto_start_machines = true
+min_machines_running = 2
+processes = ['app']
+
+[[vm]]
+cpu_kind = 'shared'
+cpus = 1
+memory_mb = 1024
+
+[[http_service.checks]]
+grace_period = '5s'
+interval = '3s'
+method = 'GET'
+timeout = '1s'
+path = '/health'
+
+[deploy]
+strategy = 'bluegreen'
