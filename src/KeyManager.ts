@@ -1,5 +1,4 @@
 // @ts-ignore
-import Wallet from 'ethereumjs-wallet';
 import EthereumHDKey from 'ethereumjs-wallet/dist/hdkey';
 
 import fs from 'fs';
@@ -21,40 +20,27 @@ export class KeyManager {
 
   /**
    * @param count - # of addresses managed by this manager
-   * @param workdir - read seed from keystore file (or generate one and write it)
-   * @param seed - if working in memory (no workdir), you can specify a seed - or use randomly generated one.
+   * @param workdir - read seed from keystore file where seed is stored
    */
-  constructor(count: number, workdir?: string, seed?: string) {
+  constructor(count: number, workdir: string) {
     ow(count, ow.number);
-    if (seed != null && workdir != null) {
-      throw new Error("Can't specify both seed and workdir");
+
+    if (!fs.existsSync(workdir)) {
+      throw new Error(
+        `workdir=${workdir} does not exist. You must create a directory with necessary keystore file`
+      );
     }
 
-    if (workdir != null) {
-      if (!fs.existsSync(workdir)) {
-        fs.mkdirSync(workdir, { recursive: true });
-      }
-      let genseed;
-      const keyStorePath = workdir + '/' + KEYSTORE_FILENAME;
-      if (fs.existsSync(keyStorePath)) {
-        genseed = JSON.parse(fs.readFileSync(keyStorePath).toString()).seed;
-      } else {
-        genseed = Wallet.generate().getPrivateKey().toString('hex');
-        fs.writeFileSync(keyStorePath, JSON.stringify({ seed: genseed }), {
-          flag: 'w',
-        });
-      }
-      this.hdkey = EthereumHDKey.fromMasterSeed(genseed);
-    } else {
-      // no workdir: working in-memory
-      let seedBuffer: Buffer;
-      if (seed == null) {
-        seedBuffer = Wallet.generate().getPrivateKey();
-      } else {
-        seedBuffer = Buffer.from(seed);
-      }
-      this.hdkey = EthereumHDKey.fromMasterSeed(seedBuffer);
+    let genseed;
+    const keyStorePath = workdir + '/' + KEYSTORE_FILENAME;
+
+    if (!fs.existsSync(keyStorePath)) {
+      throw new Error(`keystore file not found: ${keyStorePath}`);
     }
+
+    genseed = JSON.parse(fs.readFileSync(keyStorePath).toString()).seed;
+
+    this.hdkey = EthereumHDKey.fromMasterSeed(genseed);
 
     this.generateKeys(count);
   }
