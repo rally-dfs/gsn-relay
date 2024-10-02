@@ -1,13 +1,14 @@
 import Wallet from 'ethereumjs-wallet';
 import EthereumHDKey from 'ethereumjs-wallet/dist/hdkey';
-import { bufferToHex, PrefixedHexString } from 'ethereumjs-util';
+import { bufferToHex } from 'ethereumjs-util';
 
 const generateKey = () => {
-  const seed = Wallet.generate().getPrivateKey();
-  const hdKey = EthereumHDKey.fromMasterSeed(seed);
+  const seed = Wallet.generate().getPrivateKey().toString('hex');
+
+  const hdKey = EthereumHDKey.fromMasterSeed(seed as any);
   const wallet = hdKey.deriveChild(0).getWallet();
 
-  console.log('Seed: ', seed.toString('hex'));
+  console.log('Seed: ', seed);
   console.log('Private Key: ', bufferToHex(wallet.getPrivateKey()));
   console.log('Public Address: ', bufferToHex(wallet.getAddress()));
 };
